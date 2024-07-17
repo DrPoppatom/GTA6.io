@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grand Theft Auto 6</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        // Set up the canvas and context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set up the game variables
+        const blockSize = 32;
+        const worldWidth = canvas.width / blockSize;
+        const worldHeight = canvas.height / blockSize;
+        const playerSpeed = 5;
+
+        // Create the world
+        let world = [];
+        for (let y = 0; y < worldHeight; y++) {
+            world[y] = [];
+            for (let x = 0; x < worldWidth; x++) {
+                if (y === worldHeight - 1) {
+                    world[y][x] = 'grass';
+                } else if (y > worldHeight - 5) {
+                    world[y][x] = 'dirt';
+                } else {
+                    world[y][x] = 'stone';
+                }
+            }
+        }
+
+        // Create the player
+        let player = {
+            x: worldWidth / 2,
+            y: worldHeight - 2,
+            width: 1,
+            height: 2,
+            velocityX: 0,
+            velocityY: 0
+        };
+
+        // Function to draw the world
+        function drawWorld() {
+            for (let y = 0; y < worldHeight; y++) {
+                for (let x = 0; x < worldWidth; x++) {
+                    if (world[y][x] === 'grass') {
+                        ctx.fillStyle = 'green';
+                    } else if (world[y][x] === 'dirt') {
+                        ctx.fillStyle = 'brown';
+                    } else if (world[y][x] === 'stone') {
+                        ctx.fillStyle = 'gray';
+                    }
+                    ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                }
+            }
+        }
+
+        // Function to draw the player
+        function drawPlayer() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x * blockSize, player.y * blockSize, player.width * blockSize, player.height * blockSize);
+        }
+
+        // Function to handle player movement
+        function movePlayer() {
+            // Handle horizontal movement
+            if (keys['ArrowLeft']) {
+                player.x -= playerSpeed;
+            }
+            if (keys['ArrowRight']) {
+                player.x += playerSpeed;
+            }
+
+            // Handle vertical movement
+            if (keys['ArrowUp']) {
+                player.y -= playerSpeed;
+            }
+            if (keys['ArrowDown']) {
+                player.y += playerSpeed;
+            }
+
+            // Check for collision with the world
+            if (player.x < 0) {
+                player.x = 0;
+            }
+            if (player.x + player.width > worldWidth) {
+                player.x = worldWidth - player.width;
+            }
+            if (player.y < 0) {
+                player.y = 0;
+            }
+            if (player.y + player.height > worldHeight) {
+                player.y = worldHeight - player.height;
+            }
+        }
+
+        // Function to handle key events
+        let keys = {};
+        document.addEventListener('keydown', function (e) {
+            keys[e.key] = true;
+        });
+        document.addEventListener('keyup', function (e) {
+            keys[e.key] = false;
+        });
+
+        // Main game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawWorld();
+            drawPlayer();
+            movePlayer();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
